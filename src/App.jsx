@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { qaItems, slides, speakers } from "./data/presentationData";
+import AppDashboardVisual from "./components/visuals/AppDashboardVisual";
+import CommercialPosterVisual from "./components/visuals/CommercialPosterVisual";
+import MindBandHeroVisual from "./components/visuals/MindBandHeroVisual";
+import PresentationPreviewVisual from "./components/visuals/PresentationPreviewVisual";
+import ProductDetailVisual from "./components/visuals/ProductDetailVisual";
+import StudentLifestyleVisual from "./components/visuals/StudentLifestyleVisual";
 
 const SvgIcon = ({ children, className = "" }) => (
   <svg
@@ -37,13 +44,6 @@ const HeartPulseIcon = ({ className }) => (
   <SvgIcon className={className}>
     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
     <path d="M3 12h4l2-3 3 6 2-3h7" />
-  </SvgIcon>
-);
-
-const GraduationCapIcon = ({ className }) => (
-  <SvgIcon className={className}>
-    <path d="M22 10 12 5 2 10l10 5 10-5Z" />
-    <path d="M6 12v5c3 2 9 2 12 0v-5" />
   </SvgIcon>
 );
 
@@ -156,62 +156,41 @@ const features = [
   },
 ];
 
-function ProductMockup({ bandColor, activeFeature }) {
-  const active = features.find((item) => item.id === activeFeature) || features[0];
-  const Icon = active.icon;
+const designCards = [
+  [BatteryChargingIcon, "All-day routine", "Designed for regular daily use between class, study, and rest."],
+  [ActivityIcon, "Simple dashboard", "Stress, sleep, and heart rate insights are displayed clearly."],
+  [BellRingIcon, "Gentle reminders", "Short, non-intrusive prompts encourage mindful breaks."],
+  [ShieldCheckIcon, "Responsible support", "Wellness-focused guidance without replacing professional services."],
+];
 
+const aiMessages = [
+  ["Morning", "You slept 7h 30m. Start with water and a short plan."],
+  ["Afternoon", "Your stress is moderate. Try a 3-minute breathing break."],
+  ["Evening", "Wind down early tonight. Tomorrow starts easier with rest."],
+];
+
+function Reveal({ children, className = "", delay = 0 }) {
   return (
-    <div className="relative mx-auto flex h-[520px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-[3rem] bg-gradient-to-br from-white via-sky-50 to-slate-100 shadow-2xl shadow-slate-200">
-      <div className="absolute left-8 top-8 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-slate-600 backdrop-blur">
-        MindBand Concept
-      </div>
-      <motion.div
-        initial={{ y: 16, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative h-[410px] w-[220px] rotate-[-8deg]"
-        style={{ filter: `drop-shadow(0 30px 40px ${bandColor.shadow})` }}
-      >
-        <div
-          className="absolute left-1/2 top-0 h-full w-[92px] -translate-x-1/2 rounded-full"
-          style={{ background: bandColor.value }}
-        />
-        <div
-          className="absolute left-1/2 top-8 h-[350px] w-[128px] -translate-x-1/2 rounded-full border-[12px] border-white/10"
-          style={{ background: `linear-gradient(180deg, ${bandColor.value}, ${bandColor.value}dd)` }}
-        />
-        <div className="absolute left-1/2 top-[94px] z-10 h-[246px] w-[122px] -translate-x-1/2 rounded-[2rem] bg-gradient-to-br from-[#f2e7d8] to-[#b6b1a9] p-[5px] shadow-xl">
-          <div className="h-full rounded-[1.65rem] bg-black p-4 text-white">
-            <div className="text-center text-lg font-semibold text-cyan-300">MindBand</div>
-            <div className="mt-1 text-center text-[10px] leading-tight text-slate-300">AI for your<br />mind & body</div>
-            <div className="my-3 h-px bg-white/15" />
-            <div className="text-center text-[10px] uppercase tracking-[0.18em] text-slate-300">{active.detail}</div>
-            <div className="mx-auto mt-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-400 via-yellow-300 to-rose-500 p-[5px]">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-black">
-                <Icon className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 text-center text-2xl font-semibold text-yellow-300">{active.metric}</div>
-            <div className="mt-4 grid grid-cols-3 gap-1">
-              <span className="h-1.5 rounded-full bg-cyan-300" />
-              <span className="h-1.5 rounded-full bg-white/30" />
-              <span className="h-1.5 rounded-full bg-white/30" />
-            </div>
-          </div>
-        </div>
-        <div className="absolute bottom-10 left-1/2 h-5 w-20 -translate-x-1/2 rounded-full bg-black/20" />
-      </motion.div>
-    </div>
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ delay, duration: 0.7, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
 function FeatureButton({ feature, active, onClick }) {
   const Icon = feature.icon;
+
   return (
     <button
       type="button"
       onClick={() => onClick(feature.id)}
-      className={`group rounded-3xl border p-5 text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sky-200 ${
+      className={`group rounded-[1.75rem] border p-5 text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sky-200 ${
         active
           ? "border-sky-300 bg-white shadow-xl shadow-sky-100"
           : "border-slate-200 bg-white/70 hover:-translate-y-1 hover:bg-white hover:shadow-lg"
@@ -227,34 +206,78 @@ function FeatureButton({ feature, active, onClick }) {
   );
 }
 
-function Nav() {
+function Nav({ presentationMode, onTogglePresentation }) {
   const [open, setOpen] = useState(false);
-  const links = ["Overview", "Features", "Design", "AI Support", "Launch"];
+  const links = ["Overview", "Features", "Lifestyle", "Design", "AI Support", "Presentation", "Launch"];
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-white/70 backdrop-blur-2xl">
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/40 bg-white/75 backdrop-blur-2xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 lg:px-8">
-        <a href="#overview" className="text-lg font-semibold tracking-tight text-slate-950">MindBand</a>
-        <div className="hidden items-center gap-7 text-sm text-slate-600 md:flex">
-          {links.map((link) => (
-            <a key={link} href={`#${link.toLowerCase().replace(" ", "-")}`} className="transition hover:text-slate-950">
-              {link}
-            </a>
-          ))}
-        </div>
-        <a href="#launch" className="hidden rounded-full bg-slate-950 px-5 py-2 text-sm font-medium text-white transition hover:bg-sky-700 md:inline-flex">
-          Join beta
+        <a href="#overview" className="text-lg font-semibold tracking-tight text-slate-950">
+          MindBand
         </a>
-        <button type="button" onClick={() => setOpen(!open)} className="rounded-full p-2 text-slate-700 hover:bg-slate-100 md:hidden" aria-label="Open navigation menu">
+        {!presentationMode && (
+          <div className="hidden items-center gap-6 text-sm text-slate-600 lg:flex">
+            {links.map((link) => (
+              <a
+                key={link}
+                href={`#${link.toLowerCase().replace(" ", "-")}`}
+                className="transition hover:text-slate-950"
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+        )}
+        <div className="hidden items-center gap-3 md:flex">
+          <button
+            type="button"
+            onClick={onTogglePresentation}
+            className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-900 transition hover:border-sky-200 hover:bg-sky-50"
+          >
+            {presentationMode ? "Exit presentation" : "Presentation mode"}
+          </button>
+          {!presentationMode && (
+            <a
+              href="#launch"
+              className="rounded-full bg-slate-950 px-5 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
+            >
+              Join beta
+            </a>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="rounded-full p-2 text-slate-700 hover:bg-slate-100 md:hidden"
+          aria-label="Open navigation menu"
+        >
           {open ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
         </button>
       </div>
       {open && (
         <div className="border-t border-slate-100 bg-white px-5 py-4 md:hidden">
           <div className="flex flex-col gap-4 text-sm text-slate-700">
-            {links.map((link) => (
-              <a key={link} href={`#${link.toLowerCase().replace(" ", "-")}`} onClick={() => setOpen(false)}>{link}</a>
-            ))}
+            {!presentationMode &&
+              links.map((link) => (
+                <a
+                  key={link}
+                  href={`#${link.toLowerCase().replace(" ", "-")}`}
+                  onClick={() => setOpen(false)}
+                >
+                  {link}
+                </a>
+              ))}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onTogglePresentation();
+              }}
+              className="rounded-full bg-slate-950 px-5 py-3 text-left font-medium text-white"
+            >
+              {presentationMode ? "Exit presentation" : "Presentation mode"}
+            </button>
           </div>
         </div>
       )}
@@ -262,69 +285,210 @@ function Nav() {
   );
 }
 
-export default function MindBandWebsite() {
-  const [activeFeature, setActiveFeature] = useState("stress");
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
-
-  const activeCopy = useMemo(
-    () => features.find((item) => item.id === activeFeature) || features[0],
-    [activeFeature]
+function SlidesOverview({ compact = false }) {
+  return (
+    <div className="hide-scrollbar -mx-5 flex snap-x gap-4 overflow-x-auto px-5 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
+      {slides.map((slide, index) => (
+        <motion.article
+          key={slide.number}
+          className="min-w-[270px] snap-start rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-lg shadow-slate-100 lg:min-w-0"
+          initial={{ opacity: 0, x: 32 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ delay: index * 0.05, duration: 0.45 }}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="text-3xl font-semibold tracking-[-0.04em] text-sky-600">{slide.number}</div>
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              {slide.duration}
+            </div>
+          </div>
+          <h3 className="mt-4 text-xl font-semibold text-slate-950">{slide.title}</h3>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{slide.summary}</p>
+          {!compact && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {slide.points.map((point) => (
+                <span key={point} className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                  {point}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="mt-4 text-sm font-medium text-slate-500">{slide.owner}</div>
+        </motion.article>
+      ))}
+    </div>
   );
+}
 
-  const designCards = [
-    [BatteryChargingIcon, "All-day routine", "Designed for regular daily use between class, study, and rest."],
-    [ActivityIcon, "Simple dashboard", "Stress, sleep, and heart rate insights are displayed clearly."],
-    [BellRingIcon, "Gentle reminders", "Short, non-intrusive prompts encourage mindful breaks."],
-    [ShieldCheckIcon, "Responsible support", "Wellness-focused guidance without replacing professional services."],
-  ];
+function SpeakerScripts() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      {speakers.map((speaker, index) => (
+        <motion.article
+          key={speaker.name}
+          className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-100"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: index * 0.06, duration: 0.45 }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-sky-700">{speaker.name}</div>
+              <h3 className="mt-1 text-xl font-semibold text-slate-950">{speaker.role}</h3>
+            </div>
+            <div className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              {speaker.duration}
+            </div>
+          </div>
+          <div className="mt-4 text-sm font-medium text-slate-500">{speaker.slides}</div>
+          <p className="mt-4 leading-7 text-slate-700">{speaker.script}</p>
+          <div className="mt-5 rounded-2xl bg-sky-50 p-4 text-sm leading-6 text-sky-900">
+            <span className="font-semibold">Transition: </span>
+            {speaker.transition}
+          </div>
+        </motion.article>
+      ))}
+    </div>
+  );
+}
+
+function QAAccordion() {
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <main className="min-h-screen scroll-smooth bg-white font-sans text-slate-950">
-      <Nav />
+    <div className="space-y-3">
+      {qaItems.map((item, index) => {
+        const open = activeIndex === index;
 
+        return (
+          <div key={item.question} className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white">
+            <button
+              type="button"
+              onClick={() => setActiveIndex(open ? -1 : index)}
+              className="flex w-full items-center justify-between gap-4 p-5 text-left"
+              aria-expanded={open}
+            >
+              <span className="font-semibold text-slate-950">{item.question}</span>
+              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                {open ? "-" : "+"}
+              </span>
+            </button>
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <div className="border-t border-slate-100 px-5 pb-5 pt-4">
+                    <div className="text-sm font-semibold text-sky-700">{item.owner}</div>
+                    <p className="mt-2 leading-7 text-slate-600">{item.answer}</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CommercialPage({
+  activeFeature,
+  activeCopy,
+  selectedColor,
+  setActiveFeature,
+  setSelectedColor,
+  onOpenPresentation,
+}) {
+  return (
+    <>
       <section id="overview" className="relative overflow-hidden px-5 pb-16 pt-32 lg:px-8 lg:pb-24 lg:pt-40">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_15%,rgba(14,165,233,.18),transparent_34%),radial-gradient(circle_at_20%_50%,rgba(20,184,166,.12),transparent_30%)]" />
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+          <Reveal>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700">
               <SparklesIcon className="h-4 w-4" /> AI-powered wellness support for students
             </div>
-            <h1 className="max-w-4xl text-6xl font-semibold tracking-[-0.06em] text-slate-950 sm:text-7xl lg:text-8xl">Feel better. Study better.</h1>
+            <h1 className="max-w-4xl text-6xl font-semibold tracking-[-0.06em] text-slate-950 sm:text-7xl lg:text-8xl">
+              Feel better. Study better.
+            </h1>
             <p className="mt-7 max-w-2xl text-xl leading-9 text-slate-600">
               MindBand is a student-friendly wearable concept that helps international students track stress, improve sleep, and stay balanced every day.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <a href="#features" className="inline-flex items-center justify-center rounded-full bg-slate-950 px-7 py-4 font-medium text-white transition hover:bg-sky-700">
+              <a
+                href="#features"
+                className="inline-flex items-center justify-center rounded-full bg-slate-950 px-7 py-4 font-medium text-white transition hover:bg-sky-700"
+              >
                 Explore features <ChevronRightIcon className="ml-1 h-4 w-4" />
               </a>
-              <a href="#design" className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-7 py-4 font-medium text-slate-900 transition hover:border-slate-300 hover:bg-slate-50">See design</a>
+              <button
+                type="button"
+                onClick={onOpenPresentation}
+                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-7 py-4 font-medium text-slate-900 transition hover:border-sky-200 hover:bg-sky-50"
+              >
+                Open presentation mode
+              </button>
             </div>
             <div className="mt-10 grid max-w-xl grid-cols-3 gap-4 text-sm text-slate-600">
-              <div><span className="block text-2xl font-semibold text-slate-950">24/7</span>daily support</div>
-              <div><span className="block text-2xl font-semibold text-slate-950">79–99</span>AUD target price</div>
-              <div><span className="block text-2xl font-semibold text-slate-950">4</span>core features</div>
+              <div>
+                <span className="block text-2xl font-semibold text-slate-950">24/7</span>
+                daily support
+              </div>
+              <div>
+                <span className="block text-2xl font-semibold text-slate-950">AUD $79-99</span>
+                target price
+              </div>
+              <div>
+                <span className="block text-2xl font-semibold text-slate-950">4</span>
+                core features
+              </div>
             </div>
-          </motion.div>
-          <ProductMockup bandColor={selectedColor} activeFeature={activeFeature} />
+          </Reveal>
+          <MindBandHeroVisual bandColor={selectedColor} activeFeature={activeCopy} />
         </div>
       </section>
 
       <section id="features" className="bg-slate-950 px-5 py-24 text-white lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-3xl text-center">
+          <Reveal className="mx-auto max-w-3xl text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">Interactive demo</p>
-            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">One band. Four simple ways to support student wellness.</h2>
-            <p className="mt-6 text-lg leading-8 text-slate-300">Select a feature below and the MindBand screen changes instantly, just like a product demo section on a modern launch page.</p>
-          </div>
+            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+              One band. Four simple ways to support student wellness.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-slate-300">
+              Select a feature below and the MindBand screen slides into a new wellness status.
+            </p>
+          </Reveal>
 
           <div className="mt-16 grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <div className="grid gap-4 sm:grid-cols-2">
               {features.map((feature) => (
-                <FeatureButton key={feature.id} feature={feature} active={activeFeature === feature.id} onClick={setActiveFeature} />
+                <FeatureButton
+                  key={feature.id}
+                  feature={feature}
+                  active={activeFeature === feature.id}
+                  onClick={setActiveFeature}
+                />
               ))}
             </div>
-            <div className="rounded-[3rem] bg-gradient-to-br from-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/30">
-              <ProductMockup bandColor={selectedColor} activeFeature={activeFeature} />
+            <div className="overflow-hidden rounded-[3rem] bg-gradient-to-br from-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/30">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${activeFeature}-${selectedColor.name}`}
+                  initial={{ opacity: 0, x: 48 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -48 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                  <MindBandHeroVisual bandColor={selectedColor} activeFeature={activeCopy} />
+                </motion.div>
+              </AnimatePresence>
               <div className="mt-6 rounded-[2rem] bg-white/5 p-6 ring-1 ring-white/10">
                 <h3 className="text-2xl font-semibold">{activeCopy.title}</h3>
                 <p className="mt-3 leading-7 text-slate-300">{activeCopy.text}</p>
@@ -334,11 +498,28 @@ export default function MindBandWebsite() {
         </div>
       </section>
 
-      <section id="design" className="px-5 py-24 lg:px-8">
+      <section id="lifestyle" className="px-5 py-24 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+          <Reveal>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">Student lifestyle</p>
+            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+              Designed for real student routines.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-slate-600">
+              MindBand fits study sessions, part-time work, campus life, and evening wind-down routines. The visual system stays calm so it feels like support, not pressure.
+            </p>
+          </Reveal>
+          <StudentLifestyleVisual />
+        </div>
+      </section>
+
+      <section id="design" className="bg-slate-50 px-5 py-24 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center">
-          <div>
+          <Reveal>
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">Design</p>
-            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">Lightweight by design. Calm by feeling.</h2>
+            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+              Lightweight by design. Calm by feeling.
+            </h2>
             <p className="mt-6 text-lg leading-8 text-slate-600">
               The look is minimal, soft, and student-friendly: a matte silicone strap, rounded screen, and a simple dashboard that avoids overwhelming users with too much data.
             </p>
@@ -348,7 +529,11 @@ export default function MindBandWebsite() {
                   key={color.name}
                   type="button"
                   onClick={() => setSelectedColor(color)}
-                  className={`flex items-center gap-3 rounded-full border px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-4 focus:ring-sky-200 ${selectedColor.name === color.name ? "border-slate-950" : "border-slate-200 hover:border-slate-400"}`}
+                  className={`flex items-center gap-3 rounded-full border px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-4 focus:ring-sky-200 ${
+                    selectedColor.name === color.name
+                      ? "border-slate-950 bg-white"
+                      : "border-slate-200 bg-white/70 hover:border-slate-400"
+                  }`}
                   aria-pressed={selectedColor.name === color.name}
                 >
                   <span className="h-5 w-5 rounded-full" style={{ backgroundColor: color.value }} />
@@ -356,66 +541,105 @@ export default function MindBandWebsite() {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {designCards.map(([Icon, title, text]) => (
-              <div key={title} className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-lg shadow-slate-100">
+          </Reveal>
+          <ProductDetailVisual bandColor={selectedColor} />
+        </div>
+        <div className="mx-auto mt-12 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {designCards.map(([Icon, title, text], index) => (
+            <Reveal key={title} delay={index * 0.05}>
+              <div className="h-full rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-100">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold">{title}</h3>
                 <p className="mt-3 leading-7 text-slate-600">{text}</p>
               </div>
-            ))}
-          </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
       <section id="ai-support" className="overflow-hidden bg-gradient-to-br from-sky-50 via-white to-cyan-50 px-5 py-24 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">AI Support</p>
-              <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">Helpful prompts, not pressure.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-600">
-                MindBand gives short, supportive messages based on patterns. The purpose is to help students notice habits earlier and take small positive actions.
-              </p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-3">
-              {[
-                ["Morning", "You slept 7h 30m. Start with water and a short plan."],
-                ["Afternoon", "Your stress is moderate. Try a 3-minute breathing break."],
-                ["Evening", "Wind down early tonight. Tomorrow starts easier with rest."],
-              ].map(([time, message]) => (
-                <motion.div key={time} whileHover={{ y: -8 }} className="rounded-[2rem] bg-white p-7 shadow-xl shadow-sky-100 ring-1 ring-slate-100">
-                  <div className="mb-5 inline-flex rounded-full bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700">{time}</div>
-                  <p className="text-xl font-semibold leading-8 text-slate-950">“{message}”</p>
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+          <Reveal>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">AI Support</p>
+            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+              Helpful prompts, not pressure.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-slate-600">
+              MindBand gives short, supportive messages based on patterns. The purpose is to help students notice habits earlier and take small positive actions.
+            </p>
+            <div className="mt-8 grid gap-4">
+              {aiMessages.map(([time, message], index) => (
+                <motion.div
+                  key={time}
+                  className="rounded-[1.5rem] bg-white p-5 shadow-lg shadow-sky-100 ring-1 ring-slate-100"
+                  initial={{ opacity: 0, x: -24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.07, duration: 0.45 }}
+                >
+                  <div className="mb-2 inline-flex rounded-full bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700">
+                    {time}
+                  </div>
+                  <p className="text-lg font-semibold leading-7 text-slate-950">"{message}"</p>
                 </motion.div>
               ))}
             </div>
+          </Reveal>
+          <AppDashboardVisual />
+        </div>
+      </section>
+
+      <section id="presentation" className="px-5 py-24 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+            <Reveal>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">Presentation toolkit</p>
+              <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+                Built for the product pitch and the classroom presentation.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-slate-600">
+                The webpage works as a commercial landing page first, then switches into a structured BUS110 presentation view for speakers, timing, slide ownership, transitions, and Q&A.
+              </p>
+              <button
+                type="button"
+                onClick={onOpenPresentation}
+                className="mt-8 rounded-full bg-slate-950 px-7 py-4 font-medium text-white transition hover:bg-sky-700"
+              >
+                Launch speaker view
+              </button>
+            </Reveal>
+            <PresentationPreviewVisual slides={slides} speakers={speakers} />
+          </div>
+          <div className="mt-14">
+            <SlidesOverview />
+          </div>
+          <div className="mt-14">
+            <SpeakerScripts />
           </div>
         </div>
       </section>
 
-      <section id="launch" className="px-5 py-24 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[3rem] bg-slate-950 p-8 text-white shadow-2xl shadow-slate-300 lg:p-14">
-          <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">Launch strategy</p>
-              <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">Made for orientation week, student centres, and everyday campus life.</h2>
-              <p className="mt-6 text-lg leading-8 text-slate-300">
-                A student-first launch can use university partnerships, orientation week booths, social media, and student ambassadors to reach international students naturally.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a href="mailto:hello@mindband.example" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 font-medium text-slate-950 transition hover:bg-cyan-100">Contact project team</a>
-                <a href="#overview" className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-4 font-medium text-white transition hover:bg-white/10">Back to top</a>
-              </div>
-            </div>
-            <div className="rounded-[2.5rem] bg-white p-6 text-slate-950">
+      <section id="launch" className="bg-slate-950 px-5 py-24 text-white lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+          <Reveal>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">Launch strategy</p>
+            <h2 className="mt-4 text-5xl font-semibold tracking-[-0.04em] sm:text-6xl">
+              Made for orientation week, student centres, and everyday campus life.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-slate-300">
+              A student-first launch can use university partnerships, orientation week booths, social media, and student ambassadors to reach international students naturally.
+            </p>
+            <div className="mt-8 rounded-[2rem] bg-white p-6 text-slate-950">
               <h3 className="text-2xl font-semibold">Student-friendly package</h3>
               <div className="mt-6 space-y-4">
-                {["Affordable target price: AUD $79–99", "Simple wellness dashboard", "AI check-ins for daily routines", "Clear statement: wellness support only, not medical diagnosis"].map((item) => (
+                {[
+                  "Affordable target price: AUD $79-99",
+                  "Simple wellness dashboard",
+                  "AI check-ins for daily routines",
+                  "Clear statement: wellness support only, not medical diagnosis",
+                ].map((item) => (
                   <div key={item} className="flex gap-3 rounded-2xl bg-slate-50 p-4">
                     <CheckIcon className="mt-0.5 h-5 w-5 flex-none text-sky-600" />
                     <span className="text-slate-700">{item}</span>
@@ -423,9 +647,136 @@ export default function MindBandWebsite() {
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
+          <CommercialPosterVisual />
         </div>
       </section>
+    </>
+  );
+}
+
+function PresentationMode({ onExit }) {
+  return (
+    <motion.section
+      className="min-h-screen bg-slate-50 px-5 pb-20 pt-28 lg:px-8"
+      initial={{ opacity: 0, x: 60 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -60 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-600">
+              Speaker mode
+            </p>
+            <h1 className="mt-4 text-5xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-6xl">
+              BUS110 MindBand presentation.
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-slate-600">
+              Use this view during the group presentation: 6 slides, 4 speakers, timing, transitions, scripts, and Q&A in one place.
+            </p>
+            <button
+              type="button"
+              onClick={onExit}
+              className="mt-8 rounded-full bg-slate-950 px-7 py-4 font-medium text-white transition hover:bg-sky-700"
+            >
+              Back to commercial page
+            </button>
+          </div>
+          <PresentationPreviewVisual slides={slides} speakers={speakers} />
+        </div>
+
+        <div className="mt-16">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Slides overview</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-950">
+                Six-slide structure
+              </h2>
+            </div>
+            <div className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm">
+              Target total: 5 minutes
+            </div>
+          </div>
+          <SlidesOverview />
+        </div>
+
+        <div className="mt-16">
+          <div className="mb-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Speaker scripts</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-950">
+              Four-person speaking plan
+            </h2>
+          </div>
+          <SpeakerScripts />
+        </div>
+
+        <div className="mt-16 grid gap-8 lg:grid-cols-[0.55fr_1fr]">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600">Q&A preparation</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-slate-950">
+              Likely questions
+            </h2>
+            <p className="mt-4 leading-7 text-slate-600">
+              These answers keep the product positioned as responsible wellness support, not a medical claim.
+            </p>
+          </div>
+          <QAAccordion />
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+export default function MindBandWebsite() {
+  const [activeFeature, setActiveFeature] = useState("stress");
+  const [selectedColor, setSelectedColor] = useState(colors[0]);
+  const [presentationMode, setPresentationMode] = useState(false);
+
+  const activeCopy = useMemo(
+    () => features.find((item) => item.id === activeFeature) || features[0],
+    [activeFeature]
+  );
+
+  const openPresentation = () => {
+    setPresentationMode(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const closePresentation = () => {
+    setPresentationMode(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <main className="min-h-screen scroll-smooth bg-white font-sans text-slate-950">
+      <Nav
+        presentationMode={presentationMode}
+        onTogglePresentation={presentationMode ? closePresentation : openPresentation}
+      />
+      <AnimatePresence mode="wait">
+        {presentationMode ? (
+          <PresentationMode key="presentation" onExit={closePresentation} />
+        ) : (
+          <motion.div
+            key="commercial"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CommercialPage
+              activeFeature={activeFeature}
+              activeCopy={activeCopy}
+              selectedColor={selectedColor}
+              setActiveFeature={setActiveFeature}
+              setSelectedColor={setSelectedColor}
+              onOpenPresentation={openPresentation}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
